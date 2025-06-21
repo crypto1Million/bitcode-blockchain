@@ -1,0 +1,6 @@
+bitcode-chain/
+├── src/
+│   └── main.rs or chain.rs (your main logic)
+├── Cargo.toml
+├── README.md (optional)
+└── .gitignore
