@@ -1,0 +1,243 @@
+// bitcode-chain/src/chain.rs
+
+// ========== Imports ==========
+use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::fs::{self, OpenOptions};
+use std::io::{BufRead, BufReader, BufWriter, Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::process::Command;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tiny_http::{Header, Method, Response, Server};
+use urlencoding::decode;
+use ed25519_dalek::{PublicKey, Signature, Signer, Verifier};
+use rand::rngs::OsRng;
+use serde::{Deserialize, Serialize};
+use tungstenite::{accept, Message};
+use wasmtime::*;
+
+// ========== Structures ==========
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Transaction {
+    pub from: String,
+    pub to: String,
+    pub amount: u64,
+    pub fee: u64,
+    pub signature: String,
+    pub timestamp: u64,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Block {
+    pub index: u64,
+    pub timestamp: u64,
+    pub transactions: Vec<Transaction>,
+    pub prev_hash: String,
+    pub nonce: u64,
+    pub hash: String,
+}
+
+impl Block {
+    pub fn new(index: u64, prev_hash: String, transactions: Vec<Transaction>) -> Self {
+        let mut block = Block {
+            index,
+            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            transactions,
+            prev_hash,
+            nonce: 0,
+            hash: String::new(),
+        };
+        block.hash = block.calculate_hash();
+        block
+    }
+
+    pub fn calculate_hash(&self) -> String {
+        let data = format!("{}{}{:?}{}{}", self.index, self.timestamp, self.transactions, self.prev_hash, self.nonce);
+        format!("{:x}", md5::compute(data))
+    }
+
+    pub fn mine(&mut self) {
+        while !self.hash.starts_with("0000") {
+            self.nonce += 1;
+            self.hash = self.calculate_hash();
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Blockchain {
+    pub blocks: Vec<Block>,
+    pub pending_transactions: Vec<Transaction>,
+    pub initial_reward: u64,
+    pub halving_interval: u64,
+    pub max_tx_per_block: usize,
+    pub banlist: HashSet<String>,
+    pub tx_rate_limit: u64,
+}
+
+impl Blockchain {
+    pub fn new() -> Self {
+        let genesis_block = Block::new(0, "0".into(), vec![]);
+        Blockchain {
+            blocks: vec![genesis_block],
+            pending_transactions: vec![],
+            initial_reward: 50,
+            halving_interval: 100_000,
+            max_tx_per_block: 500,
+            banlist: HashSet::new(),
+            tx_rate_limit: 100,
+        }
+    }
+
+    pub fn verify_transaction_signature(&self, tx: &Transaction) -> bool {
+        if tx.timestamp + 600 < SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() {
+            return false;
+        }
+        if tx.from == "COINBASE" || tx.from == "FAUCET" {
+            return true;
+        }
+        if let Ok(pub_key_bytes) = base64::decode(&tx.from) {
+            if let Ok(signature_bytes) = base64::decode(&tx.signature) {
+                if let (Ok(pub_key), Ok(signature)) = (
+                    PublicKey::from_bytes(&pub_key_bytes),
+                    Signature::from_bytes(&signature_bytes),
+                ) {
+                    let message = format!("{}{}{}", tx.from, tx.to, tx.amount);
+                    return pub_key.verify(message.as_bytes(), &signature).is_ok();
+                }
+            }
+        }
+        false
+    }
+
+    pub fn mine_block(&mut self) {
+        let mut seen_tx = HashSet::new();
+        self.pending_transactions.retain(|tx| {
+            let id = format!("{}:{}:{}", tx.from, tx.to, tx.amount);
+            if seen_tx.contains(&id) {
+                return false;
+            }
+            seen_tx.insert(id);
+            true
+        });
+
+        let mut valid_txs = vec![];
+        self.pending_transactions.sort_by(|a, b| b.fee.cmp(&a.fee));
+        for tx in &self.pending_transactions {
+            if self.verify_transaction_signature(tx) && !self.banlist.contains(&tx.from) {
+                valid_txs.push(tx.clone());
+                if valid_txs.len() >= self.max_tx_per_block {
+                    break;
+                }
+            }
+        }
+        if valid_txs.is_empty() {
+            return;
+        }
+
+        let reward = self.calculate_reward(self.blocks.len() as u64);
+        let reward_tx = Transaction {
+            from: "COINBASE".into(),
+            to: "miner_wallet_address".into(),
+            amount: reward,
+            fee: 0,
+            signature: "reward_sig".into(),
+            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        };
+
+        let mut all_txs = vec![reward_tx];
+        all_txs.extend(valid_txs);
+
+        let prev_hash = self.blocks.last().unwrap().hash.clone();
+        let mut new_block = Block::new(self.blocks.len() as u64, prev_hash, all_txs);
+        new_block.mine();
+        self.blocks.push(new_block);
+        self.pending_transactions.clear();
+    }
+
+    pub fn calculate_reward(&self, block_height: u64) -> u64 {
+        let halvings = block_height / self.halving_interval;
+        let reward = self.initial_reward >> halvings;
+        if reward < 1 { 1 } else { reward }
+    }
+}
+
+// ========== Utilities ==========
+#[derive(Default)]
+pub struct ContractState {
+    pub storage: BTreeMap<String, String>,
+}
+
+impl ContractState {
+    pub fn set(&mut self, key: &str, value: &str) {
+        self.storage.insert(key.into(), value.into());
+    }
+    pub fn get(&self, key: &str) -> Option<String> {
+        self.storage.get(key).cloned()
+    }
+}
+
+pub fn execute_wasm_contract(bytes: &[u8], input: &str) -> Result<String, String> {
+    let engine = Engine::default();
+    let module = Module::new(&engine, bytes).map_err(|e| e.to_string())?;
+    let mut linker = Linker::new(&engine);
+    let mut store = Store::new(&engine, ());
+    let instance = linker.instantiate(&mut store, &module).map_err(|e| e.to_string())?;
+    let func = instance.get_typed_func::<(), (), _>(&mut store, "main").map_err(|_| "Missing main")?;
+    func.call(&mut store, ()).map_err(|e| e.to_string())?;
+    Ok("WASM Executed".into())
+}
+
+pub fn mine_faucet_block(address: &str, blockchain: &mut Blockchain) {
+    let faucet_tx = Transaction {
+        from: "FAUCET".into(),
+        to: address.into(),
+        amount: 10,
+        fee: 0,
+        signature: "sig".into(),
+        timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+    };
+    let prev_hash = blockchain.blocks.last().unwrap().hash.clone();
+    let mut block = Block::new(blockchain.blocks.len() as u64, prev_hash, vec![faucet_tx]);
+    block.mine();
+    blockchain.blocks.push(block);
+}
+
+pub fn serve_block_explorer_api(state: Arc<Mutex<Blockchain>>, port: u16) {
+    let server = Server::http(format!("0.0.0.0:{}", port)).unwrap();
+    thread::spawn(move || {
+        for request in server.incoming_requests() {
+            if request.url().starts_with("/explorer") {
+                let chain = state.lock().unwrap();
+                let json = serde_json::to_string(&chain.blocks).unwrap();
+                let _ = request.respond(Response::from_string(json)
+                    .with_header("Content-Type: application/json".parse().unwrap()));
+            }
+        }
+    });
+}
+
+pub fn inject_browser_wallet_script(folder: &str) {
+    let js_code = r#"
+    window.bitcodeWallet = {
+        getAddress: () => localStorage.getItem('bitcode_pubkey'),
+        signMessage: async (msg) => {
+            return btoa(msg.split('').reverse().join(''));
+        }
+    }"#;
+    let script_path = format!("{}/wallet.js", folder);
+    let _ = fs::write(script_path, js_code);
+}
+
+pub fn start_websocket_server(port: u16) {
+    let server = TcpListener::bind(format!("0.0.0.0:{}", port)).unwrap();
+    for stream in server.incoming() {
+        if let Ok(stream) = stream {
+            thread::spawn(move || {
+                let mut websocket = accept(stream).unwrap();
+                let _ = websocket.write_message(Message::Text("Bitcode WebSocket Ready".into()));
+            });
+        }
+    }
+}
