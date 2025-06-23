@@ -1,3 +1,7 @@
+[![Crates.io](https://img.shields.io/crates/v/bitcode-chain.svg)](https://crates.io/crates/bitcode-chain)
+[![Docs.rs](https://docs.rs/bitcode-chain/badge.svg)](https://docs.rs/bitcode-chain)
+
+
 # Bitcode Blockchain
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
