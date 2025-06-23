@@ -18,6 +18,10 @@ Bitcode is a lightweight, modular blockchain written in Rust. It includes:
 - CLI wallet + Web dashboard
 - ECDSA crypto, WebSocket + HTTP API
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/yourname/bitcode-chain/main/logo.png" width="200"/>
+</p>
+
 ## Run
 
 ```bash
