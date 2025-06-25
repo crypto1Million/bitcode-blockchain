@@ -33,3 +33,6 @@ Bitcode is a lightweight, modular blockchain written in Rust. It includes:
 
 ```bash
 cargo run
+
+🧠 [Developer Wiki](https://github.com/crypto1Million/bitcode-blockchain/wiki)  
+📄 [Getting Started Guide](https://github.com/crypto1Million/bitcode-blockchain/wiki/Getting-Started)  
