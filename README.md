@@ -1,8 +1,8 @@
 # Bitcode Blockchain
 
-![Build](https://img.shields.io/github/actions/workflow/status/crypto1Million/bitcode-blockchain/release.yml)
-![Crates.io](https://img.shields.io/crates/v/bitcode-node)
-![Docs.rs](https://img.shields.io/docsrs/bitcode-node)
+[![Build](https://github.com/crypto1Million/bitcode-blockchain/actions/workflows/rust.yml/badge.svg)](https://github.com/crypto1Million/bitcode-blockchain/actions)
+[![Crates.io](https://img.shields.io/crates/v/bitcode-blockchain.svg)](https://crates.io/crates/bitcode-blockchain)
+[![Docs.rs](https://docs.rs/bitcode-blockchain/badge.svg)](https://docs.rs/bitcode-blockchain)
 
 
 # Bitcode Blockchain
