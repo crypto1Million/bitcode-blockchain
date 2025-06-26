@@ -12,6 +12,16 @@ categories = ["cryptography::cryptocurrencies", "web-programming"]
 homepage = "https://github.com/crypto1Million/bitcode-blockchain"
 documentation = "https://docs.rs/bitcode-node"
 
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
+wasmer = "2.3" # or similar for WASM support
+warp = "0.3"   # for Web UI
+clap = "4.0"   # CLI parsing
+log = "0.4"
+env_logger = "0.10"
+
 
 
 
