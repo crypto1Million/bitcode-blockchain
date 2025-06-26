@@ -24,3 +24,14 @@ fn main() {
 
     println!("🚀 Bitcode node initialized. Open http://localhost:8080/explorer");
 }
+mod blockchain;
+mod block;
+mod transaction;
+mod crypto;
+
+use blockchain::Blockchain;
+
+fn main() {
+    let chain = Blockchain::new();
+    println!("Genesis block: {:?}", chain.get_latest_block());
+}
