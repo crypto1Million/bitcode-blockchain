@@ -4,7 +4,7 @@ fn main() {
     
 }
 mod chain;
-use chain::*;
+use chain:;
 use std::sync::{Arc, Mutex};
 
 fn main() {
