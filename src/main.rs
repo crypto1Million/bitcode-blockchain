@@ -1,3 +1,7 @@
+fn main() {
+    println!("Launching Bitcode Blockchain...");
+    // Add CLI handling, P2P boot, miner thread, etc.
+}
 mod chain;
 use chain::*;
 use std::sync::{Arc, Mutex};
