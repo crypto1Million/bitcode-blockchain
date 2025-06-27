@@ -24,11 +24,11 @@ env_logger = "0.10"
 sha2 = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 hex = "0.4"
-[dependencies]
 k256 = { version = "0.13", features = ["ecdsa"] }
 sha2 = "0.10"
 rand_core = "0.6"
 hex = "0.4"
+wasmer = "4.2.5" # or latest stable
 
 
 
