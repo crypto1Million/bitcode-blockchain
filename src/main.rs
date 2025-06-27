@@ -25,5 +25,7 @@ fn main() {
 
     println!("🚀 Bitcode node initialized. Open http://localhost:8080/explorer");
 }
+mod contract;
+use contract::execute_contract;
 
 
