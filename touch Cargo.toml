@@ -2,15 +2,41 @@
 name = "bitcode-node"
 version = "0.1.0"
 edition = "2021"
-authors = ["Your Name <adityacricketer6231@gmail.com>"]
-description = "Bitcode Blockchain: A modular Rust blockchain with smart contracts, dashboard, WASM, WebSockets."
-repository = "https://github.com/crypto1Million/bitcode-blockchain"
+authors = ["Aditya <your@email.com>"]
+description = "Bitcode Blockchain: modular Rust blockchain with P2P, CLI, dashboard, WASM contracts, and faucet mining"
 license = "MIT"
+repository = "https://github.com/bitcode-org/bitcode-blockchain"
+keywords = ["blockchain", "rust", "p2p", "crypto", "wasm"]
+categories = ["cryptography", "network-programming", "command-line-utilities"]
 readme = "README.md"
-keywords = ["blockchain", "rust", "crypto", "wasm"]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-homepage = "https://github.com/crypto1Million/bitcode-blockchain"
+homepage = "https://github.com/bitcode-org/bitcode-blockchain"
 documentation = "https://docs.rs/bitcode-node"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+rand = "0.8"
+base64 = "0.21"
+tiny_http = "0.12"
+ed25519-dalek = { version = "1.0", features = ["serde"] }
+urlencoding = "2.1"
+wasmer = "4.2.4"
+
+[dev-dependencies]
+clap = { version = "4.4", features = ["derive"] }
+
+[[bin]]
+name = "bitcode-node"
+path = "src/main.rs"
+
+[[example]]
+name = "wallet"
+path = "src/bin/wallet.rs"
+
+[[example]]
+name = "faucet"
+path = "src/bin/faucet.rs"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
