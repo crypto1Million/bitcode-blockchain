@@ -2,7 +2,7 @@
 name = "bitcode-node"
 version = "0.1.0"
 edition = "2021"
-authors = ["Aditya <your@email.com>"]
+authors = ["Aditya <aditycricketer6231@gmail.com>"]
 description = "Bitcode Blockchain: modular Rust blockchain with P2P, CLI, dashboard, WASM contracts, and faucet mining"
 license = "MIT"
 repository = "https://github.com/bitcode-org/bitcode-blockchain"
