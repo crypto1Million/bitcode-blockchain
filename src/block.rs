@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use sha2::{Digest, Sha256};
+use crate::transaction::Transaction;
 
 use crate::chain::Transaction;
 
