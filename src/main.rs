@@ -5,6 +5,7 @@ mod miner;
 mod block;
 mod wallet;
 mod contract;
+mod transaction;
 
 // === External Crates ===
 use std::sync::{Arc, Mutex};
