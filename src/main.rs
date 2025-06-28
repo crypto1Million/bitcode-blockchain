@@ -3,6 +3,7 @@ fn main() {
     // Add CLI handling, P2P boot, miner thread, etc.
     
 }
+mod contract;
 mod chain;
 use chain:;
 use std::sync::{Arc, Mutex};
