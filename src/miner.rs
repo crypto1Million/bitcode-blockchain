@@ -5,6 +5,7 @@ use crate::blockchain::{Block, Blockchain};
 use crate::mempool::Mempool;
 use crate::transaction::Transaction;
 use crate::crypto::hash;
+use crate::block::Block;
 
 const DIFFICULTY_PREFIX: &str = "0000"; // Adjustable
 
