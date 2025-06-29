@@ -8,6 +8,17 @@ Bitcode Blockchain is a custom-built, modular, and educational blockchain writte
 - JSON-based web dashboard and wallet CLI
 - Optional smart contract execution (WASM-ready)
 
+## 🗂 Project Structure
+
+bitcode-blockchain/
+├── src/               # Core Rust blockchain logic
+├── contracts/         # WASM-based Bitcode-20 smart contracts
+├── docs/              # Architecture & protocol documentation
+├── .github/           # GitHub Actions, workflows
+├── build.rs           # Custom build logic (optional)
+├── Cargo.toml         # Crate configuration
+├── README.md          # Project overview
+
 # Bitcode Blockchain
 
 [![Rust](https://github.com/bitcode-org/bitcode-blockchain/actions/workflows/rust.yml/badge.svg)](https://github.com/bitcode-org/bitcode-blockchain/actions)
@@ -22,7 +33,17 @@ Bitcode Blockchain is a minimal, modular, and educational Rust-powered blockchai
 - WASM Smart Contract Support
 - Faucet Mining, Auto Sync, and Token Standards
 
----
+  ---
+  
+## 🧭 Roadmap
+- [x] Minimal blockchain core
+- [x] Wallet CLI
+- [x] WASM smart contract support
+- [ ] Dashboard UI (React or Tauri)
+- [ ] Bitcode Explorer (Frontend)
+- [ ] GitHub Actions CI/CD
+- [ ] Token faucet endpoin
+
 
 ## 📘 Documentation
 All project guides are available under [`/docs`](./docs):
