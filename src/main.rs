@@ -13,7 +13,9 @@ use crate::chain::Blockchain;
 
 fn main() {
     println!("\n🚀 Starting Bitcode Blockchain Node...\n");
-
+fn main() {
+    bitcode_blockchain::run_cli(); // or wallet, node, etc. depending on your logic
+}
     // Create initial blockchain
     let chain = Blockchain::new();
     let chain = Arc::new(Mutex::new(chain));
