@@ -1,17 +1,19 @@
 [package]
-name = "bitcode-node"
-version = "0.1.0"
+name = "bitcode-blockchain"
+version = "0.1.0"              # ➜ Initial version
+authors = ["crypto1Million"]   # ➜ Your GitHub username or real name
 edition = "2021"
-authors = ["Aditya <aditycricketer6231@gmail.com>"]
-description = "Bitcode Blockchain: modular Rust blockchain with P2P, CLI, dashboard, WASM contracts, and faucet mining"
+description = "Bitcode is a modular, educational blockchain written in Rust with CLI wallet, mining, WASM smart contract support, dashboard, P2P, and faucet mining."
 license = "MIT"
-repository = "https://github.com/bitcode-org/bitcode-blockchain"
-keywords = ["blockchain", "rust", "p2p", "crypto", "wasm"]
-categories = ["cryptography", "network-programming", "command-line-utilities"]
+repository = "https://github.com/crypto1Million/bitcode-blockchain"
+homepage = "https://github.com/crypto1Million/bitcode-blockchain"
 readme = "README.md"
-homepage = "https://github.com/bitcode-org/bitcode-blockchain"
-documentation = "https://docs.rs/bitcode-node"
+keywords = ["blockchain", "rust", "smart-contracts", "crypto", "bitcode", "p2p", "wasm"]
+categories = ["cryptography", "network-programming", "command-line-utilities"]
 build = "build.rs"
+
+# Optional but helpful:
+documentation = "https://docs.rs/bitcode-blockchain"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
