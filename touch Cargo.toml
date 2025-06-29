@@ -59,6 +59,9 @@ rand_core = "0.6"
 hex = "0.4"
 wasmer = "4.2.5" # or latest stable
 
+[lib]
+name = "bitcode_blockchain"
+path = "src/lib.rs"
 
 
 
