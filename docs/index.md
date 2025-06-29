@@ -6,7 +6,8 @@ Welcome to the Bitcode Blockchain developer and node operator guide.
 - [Architecture](architecture.md)
 - [Usage Guide](usage.md)
 - [Networking Protocols](networking.md)
-
+- [Smart Contracts](../contracts/bitcode20/token.wasm)
+  
 ## 🛠 For Contributors
 To build locally:
 ```bash
