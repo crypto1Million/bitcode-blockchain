@@ -1,6 +1,14 @@
 use std::env;
 use std::fs;
 use std::path::Path;
+use std::process::Command;
+
+fn main() {
+    Command::new("wat2wasm")
+        .args(["contracts/bitcode20/token.wat", "-o", "contracts/bitcode20/token.wasm"])
+        .status()
+        .expect("Failed to compile WAT to WASM");
+}
 
 fn main() {
     // Set output directory
